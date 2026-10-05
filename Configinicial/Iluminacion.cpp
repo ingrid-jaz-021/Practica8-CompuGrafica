@@ -44,8 +44,8 @@ bool firstMouse = true;
 
 // Light attributes
 glm::vec3 lightPos(0.5f, 0.5f, 2.5f);
-float movelightPos = 0.0f;
-GLfloat deltaTime = 0.0f;
+float movelightPos = 0.0f; // El movimiento de la luz
+GLfloat deltaTime = 0.0f; // Intercambio de frame
 GLfloat lastFrame = 0.0f;
 float rot = 0.0f;
 bool activanim = false;
@@ -110,6 +110,7 @@ int main()
     glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
     float vertices[] = {
+        // Posicion  (x,y,z)        // A donde apunta el vector normal
       -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -220,8 +221,9 @@ int main()
 
 
         // Set lights properties
-        
-
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"), 0.3f, 0.3f, 0.3f); // Componente ambiental
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.diffuse"), 0.3f, 0.3f, 0.3f); // Componente difusa
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.specular"), 0.1f, 0.1f, 0.1f); // Componente specular
 
 
 
@@ -230,8 +232,10 @@ int main()
         glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
         // Set material properties
-        
-
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "material.ambient"), 0.5f, 0.5f, 0.5f); // Componente ambiental
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "material.diffuse"), 0.8f, 0.8f, 0.8f); // Componente difusa
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "material.specular"), 1.0f, 1.0f, 1.0f); // Componente specular
+        glUniform1f(glGetUniformLocation(lightingShader.Program, "material.shininess"), 0.9f); // Para el brillo
 
 
 
