@@ -44,7 +44,9 @@ bool firstMouse = true;
 
 // Light attributes
 glm::vec3 lightPos(0.5f, 0.5f, 2.5f);
+glm::vec3 lightPos2(1.5f, 0.5f, -1.0f); // Posicionada en un lugar diferente
 float movelightPos = 0.0f; // El movimiento de la luz
+float movelightPos2 = 0.0f; // Segunda luz
 GLfloat deltaTime = 0.0f; // Intercambio de frame
 GLfloat lastFrame = 0.0f;
 float rot = 0.0f;
@@ -107,6 +109,7 @@ int main()
 
     // Load models
     Model red_dog((char*)"Models/RedDog.obj");
+    Model mariposa((char*)"Models/Butterfly.obj");
     glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
     float vertices[] = {
@@ -181,7 +184,8 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 
-    image = stbi_load("Models/Texture_albedo.jpg", &textureWidth, &textureHeight, &nrChannels, 0);
+    //image = stbi_load("Models/Texture_albedo.jpg", &textureWidth, &textureHeight, &nrChannels, 0);
+    image = stbi_load("Models/color_mariposa.png", &textureWidth, &textureHeight, &nrChannels, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);
     if (image)
@@ -219,13 +223,19 @@ int main()
         glUniform3f(lightPosLoc, lightPos.x + movelightPos, lightPos.y + movelightPos, lightPos.z + movelightPos);
         glUniform3f(viewPosLoc, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 
+        GLint lightPosLoc2 = glGetUniformLocation(lightingShader.Program, "light2.position");
+        glUniform3f(lightPosLoc2, lightPos2.x + movelightPos2, lightPos2.y + movelightPos2, lightPos2.z + movelightPos2);
+
 
         // Set lights properties
         glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"), 0.3f, 0.3f, 0.3f); // Componente ambiental
         glUniform3f(glGetUniformLocation(lightingShader.Program, "light.diffuse"), 0.3f, 0.3f, 0.3f); // Componente difusa
         glUniform3f(glGetUniformLocation(lightingShader.Program, "light.specular"), 1.0f, 1.0f, 1.0f); // Componente specular
 
-
+        
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.ambient"), 0.0f, 0.0f, 0.4f); // Ambiente azul 
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.diffuse"), 0.0f, 0.0f, 3.0f); // Intensidad azul máxima
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.specular"), 0.0f, 0.0f, 2.0f); // Reflejo azul
 
         glm::mat4 view = camera.GetViewMatrix();
         glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
@@ -233,18 +243,19 @@ int main()
 
         // Set material properties
         glUniform3f(glGetUniformLocation(lightingShader.Program, "material.ambient"), 0.5f, 0.5f, 0.5f); // Componente ambiental
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "material.diffuse"), 0.8f, 0.8f, 0.8f); // Componente difusa
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "material.diffuse"), 1.5f, 1.5f, 1.5f); // Componente difusa
         glUniform3f(glGetUniformLocation(lightingShader.Program, "material.specular"), 1.0f, 1.0f, 1.0f); // Componente specular
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "material.shininess"), 0.9f); // Para el brillo
+        glUniform1f(glGetUniformLocation(lightingShader.Program, "material.shininess"), 10.0f); // Para el brillo
 
 
 
         // Draw the loaded model
         glm::mat4 model(1);
-        model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+        model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
         glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glBindVertexArray(VAO);
-        red_dog.Draw(lightingShader);
+        //red_dog.Draw(lightingShader);
+        mariposa.Draw(lightingShader);
         //glDrawArrays(GL_TRIANGLES, 0, 36);
         
 
@@ -262,6 +273,14 @@ int main()
         glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // --- Dibuja la segunda luz ---
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos2 + movelightPos2);
+        model = glm::scale(model, glm::vec3(0.3f));
+        glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        glDrawArrays(GL_TRIANGLES, 0, 36); // Dibuja el segundo foco
+
         glBindVertexArray(0);
 
         // Swap the buffers
@@ -340,6 +359,15 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
         movelightPos -= 0.1f;
     }
 
+    // Mueve segunda luz
+    if (keys[GLFW_KEY_I])
+    {
+        movelightPos2 += 0.1f;
+    }
+    if (keys[GLFW_KEY_K])
+    {
+        movelightPos2 -= 0.1f;
+    }
 
 }
 
