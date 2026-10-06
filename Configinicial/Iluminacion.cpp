@@ -239,15 +239,13 @@ int main()
 
 
 
-
-
         // Draw the loaded model
         glm::mat4 model(1);
         model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
         glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glBindVertexArray(VAO);
-       
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        red_dog.Draw(lightingShader);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
         
 
         glBindVertexArray(0);
