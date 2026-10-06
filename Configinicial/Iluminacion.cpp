@@ -1,6 +1,6 @@
-// Previo #8
+// Práctica #8
 // Serrano Cuevas Ingrid Jazmín
-// Fecha de entrega: 5 de octubre de 2026
+// Fecha de entrega: 10 de octubre de 2026
 // 319213197
 
 // Std. Includes
@@ -43,8 +43,8 @@ bool firstMouse = true;
 
 
 // Light attributes
-glm::vec3 lightPos(0.5f, 0.5f, 2.5f);
-glm::vec3 lightPos2(1.5f, 0.5f, -1.0f); // Posicionada en un lugar diferente
+glm::vec3 lightPos(-6.0f, 1.0f, 2.5f);
+glm::vec3 lightPos2(6.0f, 1.0f, -1.0f); // Posicion de la fuente de luz
 float movelightPos = 0.0f; // El movimiento de la luz
 float movelightPos2 = 0.0f; // Segunda luz
 GLfloat deltaTime = 0.0f; // Intercambio de frame
@@ -64,7 +64,7 @@ int main()
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     // Create a GLFWwindow object that we can use for GLFW's functions
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Previo 8 - Ingrid Serrano", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Practica 8 - Ingrid Serrano", nullptr, nullptr);
 
     if (nullptr == window)
     {
@@ -107,9 +107,14 @@ int main()
 
 
 
-    // Load models
+    // Load models - Escenario Veterinaria
     Model red_dog((char*)"Models/RedDog.obj");
-    Model mariposa((char*)"Models/Butterfly.obj");
+    // Model mariposa((char*)"Models/Butterfly.obj");
+    Model mesa((char*)"Models/Mesa.obj");
+    Model doctor((char*)"Models/Doctor.obj");
+    Model corgi((char*)"Models/Corgi2.obj");
+    Model medkit((char*)"Models/MedKit.obj");
+    Model planta((char*)"Models/pot.obj");
     glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
     float vertices[] = {
@@ -184,8 +189,8 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 
-    //image = stbi_load("Models/Texture_albedo.jpg", &textureWidth, &textureHeight, &nrChannels, 0);
-    image = stbi_load("Models/color_mariposa.png", &textureWidth, &textureHeight, &nrChannels, 0);
+    image = stbi_load("Models/Texture_albedo.jpg", &textureWidth, &textureHeight, &nrChannels, 0);
+    //image = stbi_load("Models/color_mariposa.png", &textureWidth, &textureHeight, &nrChannels, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);
     if (image)
@@ -215,6 +220,8 @@ int main()
         // Clear the colorbuffer
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
 
         
         lightingShader.Use();
@@ -250,36 +257,74 @@ int main()
 
 
         // Draw the loaded model
-        glm::mat4 model(1);
+        /*glm::mat4 model(1);
         model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
         glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
+        glBindVertexArray(VAO);*/
         //red_dog.Draw(lightingShader);
-        mariposa.Draw(lightingShader);
+        //mariposa.Draw(lightingShader);
         //glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // Perrito
+        glm::mat4 modelDog(1.0f);
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelDog));
+        red_dog.Draw(lightingShader);
+
+        // Mesa
+        glm::mat4 modelMesa(1.0f);
+        modelMesa = glm::translate(modelMesa, glm::vec3(0.0f, -1.3f, 0.0f));
+        modelMesa = glm::scale(modelMesa, glm::vec3(5.0f, 2.5f, 2.5f));
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelMesa));
+        mesa.Draw(lightingShader);
+
+        // Doctor
+        glm::mat4 modelDoctor(1.0f);
+        modelDoctor = glm::translate(modelDoctor, glm::vec3(-0.5f, -1.4f, -1.2f));
+        modelDoctor = glm::scale(modelDoctor, glm::vec3(1.5f, 1.5f, 1.5f));
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelDoctor));
+        doctor.Draw(lightingShader);
+
+        // Perro corgi
+        glm::mat4 modelCorgi(1.0f);
+        modelCorgi = glm::translate(modelCorgi, glm::vec3(2.0f, -1.4f, 0.0f));
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelCorgi));
+        corgi.Draw(lightingShader);
+
+        // Botiquín primero auxilios
+        glm::mat4 modelMedKit(1.0f);
+        modelMedKit = glm::translate(modelMedKit, glm::vec3(0.5f, -0.4f, 0.0f));
+        modelMedKit = glm::scale(modelMedKit, glm::vec3(0.009f, 0.009f, 0.009f));
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelMedKit));
+        medkit.Draw(lightingShader);
+
+        // Planta
+        glm::mat4 modelPlanta(1.0f);
+        modelPlanta = glm::translate(modelPlanta, glm::vec3(-1.5f, -1.5f, 0.0f));
+        modelPlanta = glm::scale(modelPlanta, glm::vec3(0.04f, 0.04f, 0.04f));
+        glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelPlanta));
+        planta.Draw(lightingShader);
         
 
         glBindVertexArray(0);
 
 
-
-
         lampshader.Use();
         glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos + movelightPos);
-        model = glm::scale(model, glm::vec3(0.3f));
-        glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glBindVertexArray(VAO);
+
+        // --- Dibuja la primera luz ---
+        glm::mat4 modelLamp = glm::mat4(1.0f);
+        modelLamp = glm::translate(modelLamp, lightPos + movelightPos);
+        modelLamp = glm::scale(modelLamp, glm::vec3(0.3f));
+        glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelLamp));
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // --- Dibuja la segunda luz ---
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos2 + movelightPos2);
-        model = glm::scale(model, glm::vec3(0.3f));
-        glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glDrawArrays(GL_TRIANGLES, 0, 36); // Dibuja el segundo foco
+        glm::mat4 modelLamp2 = glm::mat4(1.0f);
+        modelLamp2 = glm::translate(modelLamp2, lightPos2 + movelightPos2);
+        modelLamp2 = glm::scale(modelLamp2, glm::vec3(0.3f));
+        glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelLamp2));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glBindVertexArray(0);
 
