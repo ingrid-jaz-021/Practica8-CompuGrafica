@@ -43,8 +43,9 @@ bool firstMouse = true;
 
 
 // Light attributes
-glm::vec3 lightPos(-5.0f, 1.5f, 0.0f);
-glm::vec3 lightPos2(5.0f, 1.5f, 0.0f); // Posicion de la fuente de luz
+// Posicion de la fuente de luz
+glm::vec3 lightPos(-6.0f, 1.5f, 0.0f);
+glm::vec3 lightPos2(6.0f, 1.5f, 0.0f);
 float movelightPos = 0.0f; // El movimiento de la luz
 float movelightPos2 = 0.0f; // Segunda luz
 GLfloat deltaTime = 0.0f; // Intercambio de frame
@@ -115,6 +116,8 @@ int main()
     Model corgi((char*)"Models/Corgi2.obj");
     Model medkit((char*)"Models/MedKit.obj");
     Model planta((char*)"Models/pot.obj");
+    Model sol((char*)"Models/Sun.obj");
+
     glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
     float vertices[] = {
@@ -235,8 +238,9 @@ int main()
 
 
         // Set lights properties
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"), 0.3f, 0.3f, 0.3f); // Componente ambiental
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.diffuse"), 0.3f, 0.3f, 0.3f); // Componente difusa
+        // Iluminación del sol
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"), 0.5f, 0.5f, 0.5f); // Componente ambiental
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.diffuse"), 0.8f, 0.8f, 0.8f); // Componente difusa
         glUniform3f(glGetUniformLocation(lightingShader.Program, "light.specular"), 1.0f, 1.0f, 1.0f); // Componente specular
 
         
@@ -252,7 +256,7 @@ int main()
         glUniform3f(glGetUniformLocation(lightingShader.Program, "material.ambient"), 0.5f, 0.5f, 0.5f); // Componente ambiental
         glUniform3f(glGetUniformLocation(lightingShader.Program, "material.diffuse"), 1.5f, 1.5f, 1.5f); // Componente difusa
         glUniform3f(glGetUniformLocation(lightingShader.Program, "material.specular"), 1.0f, 1.0f, 1.0f); // Componente specular
-        glUniform1f(glGetUniformLocation(lightingShader.Program, "material.shininess"), 10.0f); // Para el brillo
+        glUniform1f(glGetUniformLocation(lightingShader.Program, "material.shininess"), 1.0f); // Para el brillo
 
 
 
@@ -308,25 +312,37 @@ int main()
         glBindVertexArray(0);
 
 
-        lampshader.Use();
-        glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        shader.Use();
 
-        glBindVertexArray(VAO);
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-        // --- Dibuja la primera luz ---
+        // --- Sol ---
         glm::mat4 modelLamp = glm::mat4(1.0f);
         modelLamp = glm::translate(modelLamp, lightPos + movelightPos);
-        modelLamp = glm::scale(modelLamp, glm::vec3(0.3f));
-        glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelLamp));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        modelLamp = glm::scale(modelLamp, glm::vec3(0.4f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelLamp));
+        sol.Draw(shader);
 
-        // --- Dibuja la segunda luz ---
-        glm::mat4 modelLamp2 = glm::mat4(1.0f);
-        modelLamp2 = glm::translate(modelLamp2, lightPos2 + movelightPos2);
-        modelLamp2 = glm::scale(modelLamp2, glm::vec3(0.3f));
-        glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelLamp2));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //lampshader.Use();
+        //glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        //glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+        //glBindVertexArray(VAO);
+
+        //// --- Dibuja la primera luz ---
+        //glm::mat4 modelLamp = glm::mat4(1.0f);
+        //modelLamp = glm::translate(modelLamp, lightPos + movelightPos);
+        //modelLamp = glm::scale(modelLamp, glm::vec3(1.0f));
+        //glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelLamp));
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        //// --- Dibuja la segunda luz ---
+        //glm::mat4 modelLamp2 = glm::mat4(1.0f);
+        //modelLamp2 = glm::translate(modelLamp2, lightPos2 + movelightPos2);
+        //modelLamp2 = glm::scale(modelLamp2, glm::vec3(0.3f));
+        //glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelLamp2));
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glBindVertexArray(0);
 
