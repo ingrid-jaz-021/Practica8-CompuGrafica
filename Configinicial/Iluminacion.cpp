@@ -43,8 +43,8 @@ bool firstMouse = true;
 
 
 // Light attributes
-glm::vec3 lightPos(-6.0f, 1.0f, 2.5f);
-glm::vec3 lightPos2(6.0f, 1.0f, -1.0f); // Posicion de la fuente de luz
+glm::vec3 lightPos(-5.0f, 1.5f, 0.0f);
+glm::vec3 lightPos2(5.0f, 1.5f, 0.0f); // Posicion de la fuente de luz
 float movelightPos = 0.0f; // El movimiento de la luz
 float movelightPos2 = 0.0f; // Segunda luz
 GLfloat deltaTime = 0.0f; // Intercambio de frame
@@ -311,6 +311,8 @@ int main()
         lampshader.Use();
         glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+        glBindVertexArray(VAO);
 
         // --- Dibuja la primera luz ---
         glm::mat4 modelLamp = glm::mat4(1.0f);
