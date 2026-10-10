@@ -44,8 +44,8 @@ bool firstMouse = true;
 
 // Light attributes
 // Posicion de la fuente de luz
-glm::vec3 lightPos(-6.0f, 1.5f, 0.0f);
-glm::vec3 lightPos2(6.0f, 1.5f, 0.0f);
+glm::vec3 lightPos(-5.0f, 1.5f, 0.0f);
+glm::vec3 lightPos2(5.0f, 1.5f, 0.0f);
 float movelightPos = 0.0f; // El movimiento de la luz
 float movelightPos2 = 0.0f; // Segunda luz
 GLfloat deltaTime = 0.0f; // Intercambio de frame
@@ -117,6 +117,7 @@ int main()
     Model medkit((char*)"Models/MedKit.obj");
     Model planta((char*)"Models/pot.obj");
     Model sol((char*)"Models/Sun.obj");
+    Model luna((char*)"Models/Moon.obj");
 
     glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
@@ -239,14 +240,14 @@ int main()
 
         // Set lights properties
         // Iluminación del sol
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"), 0.5f, 0.5f, 0.5f); // Componente ambiental
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.diffuse"), 0.8f, 0.8f, 0.8f); // Componente difusa
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"), 0.4f, 0.4f, 0.4f); // Componente ambiental
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.diffuse"), 0.6f, 0.6f, 0.6f); // Componente difusa
         glUniform3f(glGetUniformLocation(lightingShader.Program, "light.specular"), 1.0f, 1.0f, 1.0f); // Componente specular
 
-        
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.ambient"), 0.0f, 0.0f, 0.4f); // Ambiente azul 
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.diffuse"), 0.0f, 0.0f, 3.0f); // Intensidad azul máxima
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.specular"), 0.0f, 0.0f, 2.0f); // Reflejo azul
+        // Iluminación de la luna
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.ambient"), 0.0f, 0.0f, 0.5f); 
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.diffuse"), 0.0f, 0.0f, 4.0f); 
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.specular"), 0.0f, 0.0f, 3.0f); 
 
         glm::mat4 view = camera.GetViewMatrix();
         glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
@@ -323,6 +324,13 @@ int main()
         modelLamp = glm::scale(modelLamp, glm::vec3(0.4f));
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelLamp));
         sol.Draw(shader);
+
+        // --- Luna ---
+        glm::mat4 modelLamp2 = glm::mat4(1.0f);
+        modelLamp2 = glm::translate(modelLamp2, lightPos2 + movelightPos2);
+        modelLamp2 = glm::scale(modelLamp2, glm::vec3(0.02f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelLamp2));
+        luna.Draw(shader);
 
         //lampshader.Use();
         //glUniformMatrix4fv(glGetUniformLocation(lampshader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
