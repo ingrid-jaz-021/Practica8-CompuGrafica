@@ -52,6 +52,7 @@ GLfloat deltaTime = 0.0f; // Intercambio de frame
 GLfloat lastFrame = 0.0f;
 float rot = 0.0f;
 bool activanim = false;
+float lightAngle = 0.0f; // Ángulo de la órbita
 
 int main()
 {
@@ -226,17 +227,19 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
+        // Calcula la órbita circular sobre el eje Y
+        glm::vec3 currentSunPos(-4.0f * cos(lightAngle), 4.0f * sin(lightAngle), 0.0f);
+        glm::vec3 currentMoonPos(4.0f * cos(lightAngle), -4.0f * sin(lightAngle), 0.0f);
 
         
         lightingShader.Use();
         GLint lightPosLoc = glGetUniformLocation(lightingShader.Program, "light.position");
         GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
-        glUniform3f(lightPosLoc, lightPos.x + movelightPos, lightPos.y + movelightPos, lightPos.z + movelightPos);
+        glUniform3f(lightPosLoc, currentSunPos.x, currentSunPos.y, currentSunPos.z);
         glUniform3f(viewPosLoc, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 
         GLint lightPosLoc2 = glGetUniformLocation(lightingShader.Program, "light2.position");
-        glUniform3f(lightPosLoc2, lightPos2.x + movelightPos2, lightPos2.y + movelightPos2, lightPos2.z + movelightPos2);
-
+        glUniform3f(lightPosLoc2, currentMoonPos.x, currentMoonPos.y, currentMoonPos.z);
 
         // Set lights properties
         // Iluminación del sol
@@ -320,14 +323,14 @@ int main()
 
         // --- Sol ---
         glm::mat4 modelLamp = glm::mat4(1.0f);
-        modelLamp = glm::translate(modelLamp, lightPos + movelightPos);
+        modelLamp = glm::translate(modelLamp, currentSunPos);
         modelLamp = glm::scale(modelLamp, glm::vec3(0.4f));
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelLamp));
         sol.Draw(shader);
 
         // --- Luna ---
         glm::mat4 modelLamp2 = glm::mat4(1.0f);
-        modelLamp2 = glm::translate(modelLamp2, lightPos2 + movelightPos2);
+        modelLamp2 = glm::translate(modelLamp2, currentMoonPos);
         modelLamp2 = glm::scale(modelLamp2, glm::vec3(0.02f));
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelLamp2));
         luna.Draw(shader);
@@ -401,6 +404,15 @@ void DoMovement()
 // Is called whenever a key is pressed/released via GLFW
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
+    if (keys[GLFW_KEY_T])
+    {
+        lightAngle += 0.02f; // Aumenta el ángulo para girar
+    }
+    if (keys[GLFW_KEY_G])
+    {
+        lightAngle -= 0.02f; // Disminuye el ángulo para girar en reversa
+    }
+
     if (GLFW_KEY_ESCAPE == key && GLFW_PRESS == action)
     {
         glfwSetWindowShouldClose(window, GL_TRUE);
