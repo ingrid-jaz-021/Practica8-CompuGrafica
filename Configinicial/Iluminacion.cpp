@@ -241,16 +241,35 @@ int main()
         GLint lightPosLoc2 = glGetUniformLocation(lightingShader.Program, "light2.position");
         glUniform3f(lightPosLoc2, currentMoonPos.x, currentMoonPos.y, currentMoonPos.z);
 
-        // Set lights properties
-        // Iluminación del sol
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"), 0.4f, 0.4f, 0.4f); // Componente ambiental
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.diffuse"), 0.6f, 0.6f, 0.6f); // Componente difusa
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light.specular"), 1.0f, 1.0f, 1.0f); // Componente specular
+        // Set lights properties 
+        // Control de la iluminación del sol
+        if (currentSunPos.y >= 0.0f) {
+            // El sol está arriba: Luz Encendida
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"), 0.25f, 0.25f, 0.3f); // Sombras suaves con un leve reflejo del cielo azul
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light.diffuse"), 0.9f, 0.85f, 0.7f);  // Luz principal intensa y cálida (blanco-amarillento)
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light.specular"), 0.8f, 0.75f, 0.6f); // Brillos cálidos sobre los materiales
+        }
+        else {
+            // El sol está abajo: Luz Apagada (Ceros)
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light.ambient"), 0.0f, 0.0f, 0.0f);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light.diffuse"), 0.0f, 0.0f, 0.0f);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light.specular"), 0.0f, 0.0f, 0.0f);
+        }
 
-        // Iluminación de la luna
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.ambient"), 0.0f, 0.0f, 0.5f); 
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.diffuse"), 0.0f, 0.0f, 4.0f); 
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.specular"), 0.0f, 0.0f, 3.0f); 
+        // Control de la iluminación de la luna
+        if (currentMoonPos.y >= 0.0f) {
+            // La luna está arriba: Luz Encendida (Nocturna natural)
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.ambient"), 0.05f, 0.08f, 0.15f); // Sombras muy tenues y suavemente frías
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.diffuse"), 0.2f, 0.25f, 0.35f);  // Luz gris-azulada pálida, como luz de luna real
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.specular"), 0.2f, 0.2f, 0.3f);   // Reflejos suaves y poco deslumbrantes
+        }else {
+            // La luna está abajo: Luz Apagada (Ceros)
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.ambient"), 0.0f, 0.0f, 0.0f);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.diffuse"), 0.0f, 0.0f, 0.0f);
+            glUniform3f(glGetUniformLocation(lightingShader.Program, "light2.specular"), 0.0f, 0.0f, 0.0f);
+        }
+
+        // ----------------------------------------------------
 
         glm::mat4 view = camera.GetViewMatrix();
         glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
